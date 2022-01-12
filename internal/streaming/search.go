@@ -15,6 +15,7 @@ type Opts struct {
 	Display int
 	Trace   bool
 	Json    bool
+	Regex   bool
 }
 
 // Search calls the streaming search endpoint and uses decoder to decode the
@@ -26,11 +27,16 @@ func Search(query string, opts Opts, client api.Client, decoder Decoder) error {
 		return err
 	}
 	req.Header.Set("Accept", "text/event-stream")
+
+	// Add queries
+	q := req.URL.Query()
 	if opts.Display >= 0 {
-		q := req.URL.Query()
 		q.Add("display", strconv.Itoa(opts.Display))
-		req.URL.RawQuery = q.Encode()
 	}
+	if opts.Regex {
+		q.Add("t", "regexp")
+	}
+	req.URL.RawQuery = q.Encode()
 
 	// Send request.
 	resp, err := client.Do(req)

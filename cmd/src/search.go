@@ -57,9 +57,9 @@ Other tips:
 		apiFlags        = api.NewFlags(flagSet)
 		lessFlag        = flagSet.Bool("less", true, "Pipe output to 'less -R' (only if stdout is terminal, and not json flag).")
 		streamFlag      = flagSet.Bool("stream", false, "Consume results as stream. Streaming search only supports a subset of flags and parameters: trace, insecure-skip-verify, display, json.")
+		regexFlag       = flagSet.Bool("regex", false, "Search should be interpreted as regex")
 		display         = flagSet.Int("display", -1, "Limit the number of results that are displayed. Only supported together with stream flag. Statistics continue to report all results.")
 	)
-
 	handler := func(args []string) error {
 		if err := flagSet.Parse(args); err != nil {
 			return err
@@ -70,6 +70,7 @@ Other tips:
 				Display: *display,
 				Trace:   apiFlags.Trace(),
 				Json:    *jsonFlag,
+				Regex:   *regexFlag,
 			}
 			client := cfg.apiClient(apiFlags, flagSet.Output())
 			return streamSearch(flagSet.Arg(0), opts, client, os.Stdout)
