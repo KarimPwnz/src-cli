@@ -208,11 +208,11 @@ Other tips:
 			}
 		  }
 
-		  query ($query: String!) {
+		  query ($query: String!, $patternType: SearchPatternType) {
 			site {
 				buildVersion
 			}
-			search(query: $query) {
+			search(query: $query, patternType: $patternType) {
 			  results {
 				results{
 				  __typename
@@ -252,10 +252,15 @@ Other tips:
 				Results searchResults
 			}
 		}
-
-		if ok, err := client.NewRequest(query, map[string]interface{}{
+		variables := map[string]interface{}{
 			"query": api.NullString(queryString),
-		}).Do(context.Background(), &result); err != nil || !ok {
+		}
+		if *regexFlag {
+			variables["patternType"] = "regexp"
+		} else {
+			variables["patternType"] = "literal"
+		}
+		if ok, err := client.NewRequest(query, variables).Do(context.Background(), &result); err != nil || !ok {
 			return err
 		}
 
